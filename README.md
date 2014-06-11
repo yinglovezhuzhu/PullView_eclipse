@@ -1,4 +1,4 @@
 PullView
 ========
 
-Some pull view
+Some pull views demo
