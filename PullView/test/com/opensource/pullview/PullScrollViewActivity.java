@@ -42,7 +42,8 @@ public class PullScrollViewActivity extends Activity {
 		ImageView imageView = new ImageView(this);
 		imageView.setImageResource(R.drawable.ic_launcher);
 		imageView.setScaleType(ScaleType.CENTER_CROP);
-		mPullScrollView.addChildView(imageView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//		mPullScrollView.addChildView(imageView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		mPullScrollView.addChildView(imageView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 400));
 		mPullScrollView.setOnRefreshListener(new OnRefreshListener() {
 			
 			@Override
