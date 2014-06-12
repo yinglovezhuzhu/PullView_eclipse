@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pull_view_pull_to_refresh">下拉刷新</string>
+    <string name="pull_view_refresh_time">刷新时间</string>
+    <string name="pull_view_release_to_refresh">松开刷新</string>
+    <string name="pull_view_refreshing">正在刷新…</string>
+</resources>

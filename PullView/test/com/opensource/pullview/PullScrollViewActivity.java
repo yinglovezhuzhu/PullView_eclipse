@@ -17,11 +17,11 @@
  */	
 package com.opensource.pullview;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
+import android.os.Handler;
+import android.os.Message;
 
 /**
  * Usage 
@@ -30,7 +30,28 @@ import android.widget.ImageView.ScaleType;
  */
 public class PullScrollViewActivity extends Activity {
 	
+	private static final int MSG_REFRESH_DONE = 0x100;
+	
 	private PullScrollView mPullScrollView;
+	private MainHandler mHandler = new MainHandler();
+	
+	@SuppressLint("HandlerLeak")
+	private class MainHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case MSG_REFRESH_DONE:
+				if(null != mPullScrollView) {
+					mPullScrollView.refreshComplete();
+				}
+				break;
+
+			default:
+				break;
+			}
+			super.handleMessage(msg);
+		}
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,15 +60,15 @@ public class PullScrollViewActivity extends Activity {
 		setContentView(R.layout.activity_pull_scroll_view);
 		
 		mPullScrollView = (PullScrollView) findViewById(R.id.pull_scroll_view);
-		ImageView imageView = new ImageView(this);
-		imageView.setImageResource(R.drawable.ic_launcher);
-		imageView.setScaleType(ScaleType.CENTER_CROP);
-//		mPullScrollView.addChildView(imageView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-		mPullScrollView.addChildView(imageView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 400));
 		mPullScrollView.setOnRefreshListener(new OnRefreshListener() {
 			
 			@Override
 			public void onRefresh() {
+				mHandler.sendEmptyMessageDelayed(MSG_REFRESH_DONE, 5000);
+			}
+
+			@Override
+			public void onInterrupt() {
 				// TODO Auto-generated method stub
 				
 			}

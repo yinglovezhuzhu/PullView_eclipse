@@ -24,6 +24,7 @@
         </activity>
         
         <activity android:name=".PullScrollViewActivity" />
+        <activity android:name=".PullListViewActivity" />
     </application>
 
 </manifest>

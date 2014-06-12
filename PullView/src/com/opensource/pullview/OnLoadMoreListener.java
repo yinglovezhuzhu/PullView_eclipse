@@ -16,16 +16,18 @@
  * limitations under the License.
  */	
 package com.opensource.pullview;
+
 /**
- * Usage The listener to listen refresh action.<br>
+ * Usage The listener to listen loadmore action.<br>
  * 
  * @author yinglovezhuzhu@gmail.com
  */
-public interface OnRefreshListener {
+public interface OnLoadMoreListener {
+
 	/**
-	 * On refresh.
+	 * Load more
 	 */
-	public void onRefresh();
+	public void onLoadMore();
 	
 	/**
 	 * On interrupt.

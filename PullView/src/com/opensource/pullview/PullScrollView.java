@@ -23,13 +23,17 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Scroller;
 
 /**
- * Use：
+ * Usage A custom scroll view can be pull to refresh.<br>
+ * 
+ * <p> You can add child view use addView method.<br>
+ * also you can add child view in layout xml file like this.<br>
  * 
  * @author yinglovezhuzhu@gmail.com
  */
@@ -93,54 +97,6 @@ public class PullScrollView extends ScrollView {
 	}
 
 	/**
-	 * Init the View.
-	 * 
-	 * @param context the context
-	 */
-	private void initView(Context context) {
-		mScroller = new Scroller(context, new DecelerateInterpolator());
-
-		LinearLayout.LayoutParams layoutParamsFW = new LinearLayout.LayoutParams(
-				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		mScrollLayout = new LinearLayout(context);
-		mScrollLayout.setLayoutParams(layoutParamsFW);
-		mScrollLayout.setOrientation(LinearLayout.VERTICAL);
-
-		// init header view
-		mHeaderView = new PullHeaderView(context);
-
-		// init header height
-		mHeaderViewHeight = mHeaderView.getHeaderHeight();
-		mHeaderView.setGravity(Gravity.BOTTOM);
-		mScrollLayout.addView(mHeaderView, layoutParamsFW);
-		this.addView(mScrollLayout);
-	}
-
-	/**
-	 * Enable or disable the ability of pull to refresh.
-	 * 
-	 * @param enable
-	 */
-	public void setPullRefreshEnable(boolean enable) {
-		mEnablePullRefresh = enable;
-		if (!mEnablePullRefresh) { // disable, hide the content
-			mHeaderView.setVisibility(View.INVISIBLE);
-		} else {
-			mHeaderView.setVisibility(View.VISIBLE);
-		}
-	}
-
-	/**
-	 * Stop refresh
-	 */
-	public void stopRefresh() {
-		if (mPullRefreshing == true) {
-			mPullRefreshing = false;
-			refreshHeaderHeight();
-		}
-	}
-
-	/**
 	 * Update the height of header view.
 	 * 
 	 * @param delta
@@ -155,23 +111,6 @@ public class PullScrollView extends ScrollView {
 				mHeaderView.setState(PullHeaderView.STATE_NORMAL);
 			}
 		}
-	}
-
-	/**
-	 * Refresh Header height.
-	 */
-	private void refreshHeaderHeight() {
-		int height = mHeaderView.getVisiableHeight();
-		if (height < mHeaderViewHeight || !mPullRefreshing) {
-			mScrollBack = SCROLLBACK_HEADER;
-			mScroller.startScroll(0, height, 0, -1 * height, SCROLL_DURATION);
-		} else if (height > mHeaderViewHeight || !mPullRefreshing) {
-			mScrollBack = SCROLLBACK_HEADER;
-			mScroller.startScroll(0, height, 0, -(height - mHeaderViewHeight),
-					SCROLL_DURATION);
-		}
-
-		invalidate();
 	}
 
 	@Override
@@ -194,11 +133,7 @@ public class PullScrollView extends ScrollView {
 		case MotionEvent.ACTION_UP:
 			mLastY = -1;
 			if (mEnablePullRefresh && mHeaderView.getVisiableHeight() >= mHeaderViewHeight) {
-				mPullRefreshing = true;
-				mHeaderView.setState(PullHeaderView.STATE_REFRESHING);
-				if (mOnRefreshListener != null) {
-					mOnRefreshListener.onRefresh();
-				}
+				startRefresh();
 			}
 			if (mEnablePullRefresh) {
 				refreshHeaderHeight();
@@ -221,6 +156,52 @@ public class PullScrollView extends ScrollView {
 		super.computeScroll();
 	}
 
+	@Override
+	public void addView(View child) {
+		if(getChildCount() > 0) {
+			mScrollLayout.addView(child);
+		} else {
+			super.addView(child);
+		}
+	}
+	
+	@Override
+	public void addView(View child, int index) {
+		if(getChildCount() > 0) {
+			mScrollLayout.addView(child, index);
+		} else {
+			super.addView(child, index);
+		}
+	}
+	
+	@Override
+	public void addView(View child, int width, int height) {
+		if(getChildCount() > 0) {
+			mScrollLayout.addView(child, width, height);
+		} else {
+			super.addView(child, width, height);
+		}
+	}
+	
+	@Override
+	public void addView(View child, android.view.ViewGroup.LayoutParams params) {
+		if(getChildCount() > 0) {
+			mScrollLayout.addView(child, params);
+		} else {
+			super.addView(child, params);
+		}
+	}
+	
+	@Override
+	public void addView(View child, int index,
+			android.view.ViewGroup.LayoutParams params) {
+		if(getChildCount() > 0) {
+			mScrollLayout.addView(child, index, params);
+		} else {
+			super.addView(child, index, params);
+		}
+	}
+
 	/**
 	 * Set Refresh Listener.
 	 * 
@@ -232,45 +213,28 @@ public class PullScrollView extends ScrollView {
 	}
 
 	/**
-	 * Add a child view to scroll layout
-	 * 
-	 * @param child the child
-	 * @param index the index
+	 * Refresh complete
 	 */
-	public void addChildView(View child, int index) {
-		mScrollLayout.addView(child, index);
-	}
-
-	/**
-	 * Add a child view to scroll layout
-	 * 
-	 * @param child the child
-	 */
-	public void addChildView(View child) {
-		mScrollLayout.addView(child);
+	public void refreshComplete() {
+		if (mPullRefreshing == true) {
+			mPullRefreshing = false;
+			refreshHeaderHeight();
+		}
 	}
 	
 	/**
-	 * Add a child view to scroll layout
-	 * @param child
-	 * @param params
+	 * Interrupt refresh data.
 	 */
-	public void addChildView(View child, android.view.ViewGroup.LayoutParams params) {
-		mScrollLayout.addView(child, params);
+	public void interruptPull() {
+		if(mPullRefreshing) {
+			if(null != mOnRefreshListener) {
+				mOnRefreshListener.onInterrupt();
+			}
+			refreshComplete();
+		}
 	}
 	
 	/**
-	 * Add a child view to scroll layout
-	 * @param child
-	 * @param index
-	 * @param params
-	 */
-	public void addChildView(View child, int index, android.view.ViewGroup.LayoutParams params) {
-		mScrollLayout.addView(child, index, params);
-	}
-	
-	/**
-	 * 
 	 * Get header view
 	 * 
 	 * @return
@@ -289,5 +253,78 @@ public class PullScrollView extends ScrollView {
 	 */
 	public ProgressBar getHeaderProgress() {
 		return mHeaderView.getHeaderProgress();
+	}
+
+	/**
+	 * Init the View.
+	 * 
+	 * @param context the context
+	 */
+	private void initView(Context context) {
+		mScroller = new Scroller(context, new DecelerateInterpolator());
+
+		//Add content layout
+		LinearLayout.LayoutParams headerLp = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		mScrollLayout = new LinearLayout(context);
+		mScrollLayout.setLayoutParams(headerLp);
+		mScrollLayout.setOrientation(LinearLayout.VERTICAL);
+
+		// init header view
+		mHeaderView = new PullHeaderView(context);
+
+		// init header height
+		mHeaderViewHeight = mHeaderView.getHeaderHeight();
+		mHeaderView.setGravity(Gravity.BOTTOM);
+		mScrollLayout.addView(mHeaderView, headerLp);
+		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, 
+				FrameLayout.LayoutParams.MATCH_PARENT, Gravity.TOP);
+		this.addView(mScrollLayout, lp);
+	}
+
+	/**
+	 * Refresh Header height.
+	 */
+	private void refreshHeaderHeight() {
+		int height = mHeaderView.getVisiableHeight();
+		if (height < mHeaderViewHeight || !mPullRefreshing) {
+			mScrollBack = SCROLLBACK_HEADER;
+			mScroller.startScroll(0, height, 0, -1 * height, SCROLL_DURATION);
+		} else if (height > mHeaderViewHeight || !mPullRefreshing) {
+			mScrollBack = SCROLLBACK_HEADER;
+			mScroller.startScroll(0, height, 0, -(height - mHeaderViewHeight),
+					SCROLL_DURATION);
+		}
+
+		invalidate();
+	}
+
+	/**
+	 * Enable or disable the ability of pull to refresh.
+	 * 
+	 * @param enable
+	 */
+	private void setPullRefreshEnable(boolean enable) {
+		mEnablePullRefresh = enable;
+		if (!mEnablePullRefresh) { // disable, hide the content
+			mHeaderView.setVisibility(View.INVISIBLE);
+		} else {
+			mHeaderView.setVisibility(View.VISIBLE);
+		}
+	}
+	
+	/**
+	 * Start refresh
+	 */
+	private void startRefresh() {
+		if(mPullRefreshing) {
+			//In the process of preventing refresh again when it was refreshing. 
+			return;
+		}
+		mHeaderView.setState(PullHeaderView.STATE_REFRESHING);
+		if (mOnRefreshListener != null) {
+			mOnRefreshListener.onRefresh();
+		}
+		mPullRefreshing = true;
 	}
 }

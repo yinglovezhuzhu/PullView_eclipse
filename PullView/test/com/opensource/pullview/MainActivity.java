@@ -28,6 +28,7 @@ public class MainActivity extends ListActivity {
 					intent.setClass(MainActivity.this, PullScrollViewActivity.class);
 					break;
 				case 1:
+					intent.setClass(MainActivity.this, PullListViewActivity.class);
 					break;
 				default:
 					break;

@@ -140,25 +140,25 @@ public class PullHeaderView extends LinearLayout {
 		headTextLayout.setOrientation(LinearLayout.VERTICAL);
 		headTextLayout.setGravity(Gravity.BOTTOM|Gravity.LEFT);
 		headTextLayout.setPadding(12,0,0,0);
-		LinearLayout.LayoutParams layoutParamsWW2 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		headTextLayout.addView(mTipsTextview,layoutParamsWW2);
-		headTextLayout.addView(mTimeTextView,layoutParamsWW2);
+		LinearLayout.LayoutParams tipLp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		headTextLayout.addView(mTipsTextview,tipLp);
+		headTextLayout.addView(mTimeTextView,tipLp);
 		mTipsTextview.setTextColor(Color.rgb(107, 107, 107));
 		mTimeTextView.setTextColor(Color.rgb(107, 107, 107));
 		mTipsTextview.setTextSize(15);
 		mTimeTextView.setTextSize(14);
 		
-		LinearLayout.LayoutParams layoutParamsWW3 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		layoutParamsWW3.gravity = Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL;
-		layoutParamsWW3.bottomMargin = 5;
-		layoutParamsWW3.topMargin = 5;
+		LinearLayout.LayoutParams contentLp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		contentLp.gravity = Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL;
+		contentLp.bottomMargin = 5;
+		contentLp.topMargin = 5;
 		
 		LinearLayout headerLayout = new LinearLayout(context);
 		headerLayout.setOrientation(LinearLayout.HORIZONTAL);
 		headerLayout.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM); 
 		
-		headerLayout.addView(headImage,layoutParamsWW3);
-		headerLayout.addView(headTextLayout,layoutParamsWW3);
+		headerLayout.addView(headImage,contentLp);
+		headerLayout.addView(headTextLayout,contentLp);
 		
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		lp.gravity = Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL;
@@ -211,13 +211,13 @@ public class PullHeaderView extends LinearLayout {
 				if (mState == STATE_REFRESHING) {
 					mArrowImageView.clearAnimation();
 				}
-				mTipsTextview.setText("下拉刷新");
+				mTipsTextview.setText(R.string.pull_view_pull_to_refresh);
 				
 				if(mLastRefreshTime==null){
 					mLastRefreshTime = DateUtil.getSystemDate("yyyy-MM-dd HH:mm:ss");
-					mTimeTextView.setText("刷新时间：" + mLastRefreshTime);
+					mTimeTextView.setText(getResources().getText(R.string.pull_view_refresh_time) + " " + mLastRefreshTime);
 				}else{
-					mTimeTextView.setText("上次刷新时间：" + mLastRefreshTime);
+					mTimeTextView.setText(getResources().getText(R.string.pull_view_refresh_time) + " " + mLastRefreshTime);
 				}
 				
 				break;
@@ -225,15 +225,15 @@ public class PullHeaderView extends LinearLayout {
 				if (mState != STATE_READY) {
 					mArrowImageView.clearAnimation();
 					mArrowImageView.startAnimation(mRotateUpAnim);
-					mTipsTextview.setText("松开刷新");
-					mTimeTextView.setText("上次刷新时间：" + mLastRefreshTime);
+					mTipsTextview.setText(R.string.pull_view_release_to_refresh);
+					mTimeTextView.setText(getResources().getText(R.string.pull_view_refresh_time) + " " + mLastRefreshTime);
 					mLastRefreshTime = DateUtil.getSystemDate("yyyy-MM-dd HH:mm:ss");
 					
 				}
 				break;
 			case STATE_REFRESHING:
-				mTipsTextview.setText("正在刷新...");
-				mTimeTextView.setText("本次刷新时间：" + mLastRefreshTime);
+				mTipsTextview.setText(R.string.pull_view_refreshing);
+				mTimeTextView.setText(getResources().getText(R.string.pull_view_refresh_time) + " " + mLastRefreshTime);
 				break;
 				default:
 			}
