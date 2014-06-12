@@ -66,10 +66,10 @@ public class PullListView extends ListView implements
 	private Scroller mScroller;
 
 	/** The listener to listen refresh action */
-	private OnRefreshListener mRefreshListener;
+	private OnRefreshListener mOnRefreshListener;
 
 	/** The listener to listen load more action */
-	private OnLoadMoreListener mLoadMoreListener;
+	private OnLoadMoreListener mOnLoadMoreListener;
 
 	/** The header view. */
 	private PullHeaderView mHeaderView;
@@ -226,8 +226,8 @@ public class PullListView extends ListView implements
 		}
 		interruptPull(); //Stop refresh
 		mFooterView.setState(PullFooterView.STATE_LOADING);
-		if (null != mLoadMoreListener) {
-			mLoadMoreListener.onLoadMore();
+		if (null != mOnLoadMoreListener) {
+			mOnLoadMoreListener.onLoadMore();
 		}
 		mPullLoading = true;
 	}
@@ -253,14 +253,14 @@ public class PullListView extends ListView implements
 	 */
 	public void interruptPull() {
 		if(mPullRefreshing) {
-			if(null != mRefreshListener) {
-				mRefreshListener.onInterrupt();
+			if(null != mOnRefreshListener) {
+				mOnRefreshListener.onInterrupt();
 			}
 			refreshComplete();
 		}
 		if(mPullLoading) {
-			if(null != mLoadMoreListener) {
-				mLoadMoreListener.onInterrupt();
+			if(null != mOnLoadMoreListener) {
+				mOnLoadMoreListener.onInterrupt();
 			}
 			loadMoreComplete(true);
 		}
@@ -272,7 +272,7 @@ public class PullListView extends ListView implements
 	 * @param listener
 	 */
 	public void setOnRefreshListener(OnRefreshListener listener) {
-		this.mRefreshListener = listener;
+		this.mOnRefreshListener = listener;
 		setPullRefreshEnable(null != listener);
 	}
 
@@ -282,7 +282,7 @@ public class PullListView extends ListView implements
 	 * @param listener
 	 */
 	public void setOnLoadMoreListener(OnLoadMoreListener listener) {
-		this.mLoadMoreListener = listener;
+		this.mOnLoadMoreListener = listener;
 		setPullLoadEnable(null != listener);
 	}
 
@@ -418,8 +418,8 @@ public class PullListView extends ListView implements
 			return;
 		}
 		interruptPull();	//Stop load more
-		if (null != mRefreshListener) {
-			mRefreshListener.onRefresh();
+		if (null != mOnRefreshListener) {
+			mOnRefreshListener.onRefresh();
 		}
 		mPullRefreshing = true;
 	}

@@ -3,6 +3,7 @@
     <string-array name="demo_items">
         <item>PullScrollView</item>
         <item>PullListview</item>
+        <item>PullGridView</item>
     </string-array>
     
 </resources>

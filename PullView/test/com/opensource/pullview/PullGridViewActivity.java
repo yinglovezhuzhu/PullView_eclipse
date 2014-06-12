@@ -25,23 +25,22 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 
 /**
  * Usage 
  * 
  * @author yinglovezhuzhu@gmail.com
  */
-public class PullListViewActivity extends Activity {
-	
-	private static final String TAG = "PullListViewActivity";
+public class PullGridViewActivity extends Activity {
+
+	private static final String TAG = "PullGridView";
 
 	private static final int MSG_REFRESH_DONE = 0x100;
 	private static final int MSG_LOAD_DONE = 0x101;
-
-	private PullListView mListView;
+	
+	private PullGridView mGridView;
+	@SuppressWarnings("unused")
 	private MainHandler mHandler = new MainHandler();
 	
 	@SuppressLint("HandlerLeak")
@@ -50,13 +49,13 @@ public class PullListViewActivity extends Activity {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MSG_REFRESH_DONE:
-				if(null != mListView) {
-					mListView.refreshComplete();
+				if(null != mGridView) {
+					mGridView.refreshComplete();
 				}
 				break;
 			case MSG_LOAD_DONE:
-				if(null != mListView) {
-					mListView.loadMoreComplete(true);
+				if(null != mGridView) {
+					mGridView.loadMoreComplete(true);
 				}
 				break;
 			default:
@@ -65,55 +64,46 @@ public class PullListViewActivity extends Activity {
 			super.handleMessage(msg);
 		}
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setContentView(R.layout.activity_pull_list_view);
+		setContentView(R.layout.activity_pull_grid_view);
 		
-		mListView = (PullListView) findViewById(R.id.pull_list_view);
-		
-		List<String> items = new ArrayList<String>();
-		for(int i = 0; i < 30; i++) {
-			items.add("Item " + i);
-		}
-		
-		ImageView iv = new ImageView(this);
-		iv.setImageResource(R.drawable.ic_launcher);
-		mListView.addHeaderView(iv);
-		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-		mListView.setAdapter(adapter);
-		
-		mListView.setOnRefreshListener(new OnRefreshListener() {
+		mGridView = (PullGridView) findViewById(R.id.pull_grid_view);
+		mGridView.setOnRefreshListener(new OnRefreshListener() {
 			
 			@Override
 			public void onRefresh() {
-				mHandler.sendEmptyMessageDelayed(MSG_REFRESH_DONE, 5000);
-				Log.e(TAG, "Start refresh+=====================^_^");
+				mHandler.sendEmptyMessageDelayed(MSG_REFRESH_DONE, 50000);
 			}
-
+			
 			@Override
 			public void onInterrupt() {
 				mHandler.removeMessages(MSG_REFRESH_DONE);
-				Log.e(TAG, "Interrupt refresh+=====================-_-");
 			}
 		});
 		
-		mListView.setOnLoadMoreListener(new OnLoadMoreListener() {
+		mGridView.setOnLoadMoreListener(new OnLoadMoreListener() {
 			
 			@Override
 			public void onLoadMore() {
 				mHandler.sendEmptyMessageDelayed(MSG_LOAD_DONE, 5000);
-				Log.e(TAG, "Start load more+=====================^_^");
 			}
-
+			
 			@Override
 			public void onInterrupt() {
 				mHandler.removeMessages(MSG_LOAD_DONE);
-				Log.e(TAG, "Interrupt load more+=====================-_-");
 			}
 		});
+		
+		List<String> items = new ArrayList<String>();
+		for(int i = 0; i < 100; i++) {
+			items.add("Item " + i);
+		}
+		ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_gallery_item, items);
+		
+		mGridView.setAdapter(adapter);
 	}
 }
