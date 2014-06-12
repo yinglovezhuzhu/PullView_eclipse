@@ -134,6 +134,7 @@ public class PullGridView extends BaseGridView implements OnScrollListener,
 					&& (mHeaderView.getVisiableHeight() > 0 || deltaY > 0)) {
 				// 下拉更新高度
 				updateHeaderView(deltaY / OFFSET_RADIO);
+				mGridView.smoothScrollToPosition(0);
 				return true;
 			} 
 //			else if (mEnablePullLoad
@@ -181,7 +182,7 @@ public class PullGridView extends BaseGridView implements OnScrollListener,
 
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		System.out.println("AAAAAAAAAAAAAAAAAAA " + firstVisibleItem);
+		System.out.println("AAAAAAAAAAAAAAAAAAA " + firstVisibleItem + "<>" + mGridView.getFirstVisiblePosition());
 		if (firstVisibleItem == 0) {
 			//Scroll to top
 			mGridViewScrollable = false;
