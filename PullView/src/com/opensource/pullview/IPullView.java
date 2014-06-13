@@ -32,6 +32,6 @@ public interface IPullView {
 	/** The ratio of the distance of the padding and sliding distance */
 	public static final int OFFSET_RATIO = 3;
 	
-	public static final int ANIMATION_DURATION = 250;
+	public static final int ROTATE_ANIMATION_DURATION = 250;
 
 }

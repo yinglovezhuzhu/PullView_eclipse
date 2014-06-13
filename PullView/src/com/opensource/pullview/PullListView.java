@@ -423,12 +423,12 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 	private void initView(Context context) {
 		mDownToUpAnimation = new RotateAnimation(0, -180, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 		mDownToUpAnimation.setInterpolator(new LinearInterpolator());
-		mDownToUpAnimation.setDuration(ANIMATION_DURATION);
+		mDownToUpAnimation.setDuration(ROTATE_ANIMATION_DURATION);
 		mDownToUpAnimation.setFillAfter(true);
 
 		mUpToDownAnimation = new RotateAnimation(-180, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 		mUpToDownAnimation.setInterpolator(new LinearInterpolator());
-		mUpToDownAnimation.setDuration(ANIMATION_DURATION);
+		mUpToDownAnimation.setDuration(ROTATE_ANIMATION_DURATION);
 		mUpToDownAnimation.setFillAfter(true);
 		
 		mHeaderView = new PullHeaderView(context);
