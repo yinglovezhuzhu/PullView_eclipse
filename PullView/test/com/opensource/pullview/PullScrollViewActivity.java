@@ -67,11 +67,6 @@ public class PullScrollViewActivity extends Activity {
 				mHandler.sendEmptyMessageDelayed(MSG_REFRESH_DONE, 5000);
 			}
 
-			@Override
-			public void onInterrupt() {
-				// TODO Auto-generated method stub
-				
-			}
 		});
 	}
 

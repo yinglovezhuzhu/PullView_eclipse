@@ -29,8 +29,4 @@ public interface OnLoadMoreListener {
 	 */
 	public void onLoadMore();
 	
-	/**
-	 * On interrupt.
-	 */
-	public void onInterrupt();
 }

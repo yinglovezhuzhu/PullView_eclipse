@@ -26,8 +26,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+
+import com.opensource.pullview.utils.DateUtil;
 
 /**
  * Usage 
@@ -51,12 +54,12 @@ public class PullListViewActivity extends Activity {
 			switch (msg.what) {
 			case MSG_REFRESH_DONE:
 				if(null != mListView) {
-					mListView.refreshComplete();
+					mListView.refreshCompleted();
 				}
 				break;
 			case MSG_LOAD_DONE:
 				if(null != mListView) {
-					mListView.loadMoreComplete(true);
+					mListView.loadMoreCompleted(true);
 				}
 				break;
 			default:
@@ -70,9 +73,12 @@ public class PullListViewActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setContentView(R.layout.activity_pull_list_view);
+		setContentView(R.layout.activity_list_view_ex);
 		
-		mListView = (PullListView) findViewById(R.id.pull_list_view);
+		mListView = (PullListView) findViewById(R.id.list_view_ex);
+		mListView.setLoadMode(PullListView.LoadMode.PULL_TO_LOAD);
+		mListView.setHeaderLabelVisibility(View.VISIBLE);
+		mListView.setLastRefreshTime(DateUtil.getYesterdayDate(getString(R.string.pull_view_date_format)));
 		
 		List<String> items = new ArrayList<String>();
 		for(int i = 0; i < 30; i++) {
@@ -82,6 +88,12 @@ public class PullListViewActivity extends Activity {
 		ImageView iv = new ImageView(this);
 		iv.setImageResource(R.drawable.ic_launcher);
 		mListView.addHeaderView(iv);
+		ImageView iv2 = new ImageView(this);
+		iv2.setImageResource(R.drawable.ic_launcher);
+		mListView.addHeaderView(iv2);
+		ImageView iv3 = new ImageView(this);
+		iv3.setImageResource(R.drawable.ic_launcher);
+		mListView.addHeaderView(iv3);
 		
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
 		mListView.setAdapter(adapter);
@@ -93,12 +105,6 @@ public class PullListViewActivity extends Activity {
 				mHandler.sendEmptyMessageDelayed(MSG_REFRESH_DONE, 5000);
 				Log.e(TAG, "Start refresh+=====================^_^");
 			}
-
-			@Override
-			public void onInterrupt() {
-				mHandler.removeMessages(MSG_REFRESH_DONE);
-				Log.e(TAG, "Interrupt refresh+=====================-_-");
-			}
 		});
 		
 		mListView.setOnLoadMoreListener(new OnLoadMoreListener() {
@@ -107,12 +113,6 @@ public class PullListViewActivity extends Activity {
 			public void onLoadMore() {
 				mHandler.sendEmptyMessageDelayed(MSG_LOAD_DONE, 5000);
 				Log.e(TAG, "Start load more+=====================^_^");
-			}
-
-			@Override
-			public void onInterrupt() {
-				mHandler.removeMessages(MSG_LOAD_DONE);
-				Log.e(TAG, "Interrupt load more+=====================-_-");
 			}
 		});
 	}

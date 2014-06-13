@@ -17,51 +17,46 @@
  */	
 package com.opensource.pullview;
 
-import com.opensource.pullview.utils.ViewUtil;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.Animation;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.opensource.pullview.utils.ViewUtil;
+
 /**
- * Usage The footer view of pull view
+ * Usage The header view.
  * 
  * @author yinglovezhuzhu@gmail.com
  */
 public class PullFooterView extends LinearLayout {
-	
-	/** The Constant STATE_READY. */
-	public final static int STATE_READY = 1;
-	
-	/** The Constant STATE_LOADING. */
-	public final static int STATE_LOADING = 2;
-	
-	/** The Constant STATE_NO. */
-	public final static int STATE_NO = 3;
-	
-	/** The Constant STATE_EMPTY. */
-	public final static int STATE_EMPTY = 4;
 
-	/** The footer view. */
-	private LinearLayout footerView;
+	/** The header view. */
+	private LinearLayout mHeaderView;
 	
-	/** The footer progress bar. */
-	private ProgressBar mFooterProgress;
+	/** The arrow image view. */
+	private ImageView mArrowImageView;
 	
-	/** The footer text view. */
-	private TextView footerTextView;
+	/** The header progress bar. */
+	private ProgressBar mProgress;
 	
-	/** The footer content height. */
-	private int footerHeight;
+	/** The tips textview. */
+	private TextView mTvTitle;
+	
+	/** The head content height. */
+	private int mFooterViewHeight;
 
 	/**
-	 * Instantiates a new ab list view footer.
+	 * Instantiates a new ab list view header.
 	 *
 	 * @param context the context
 	 */
@@ -71,7 +66,7 @@ public class PullFooterView extends LinearLayout {
 	}
 
 	/**
-	 * Instantiates a new ab list view footer.
+	 * Instantiates a new ab list view header.
 	 *
 	 * @param context the context
 	 * @param attrs the attrs
@@ -79,165 +74,169 @@ public class PullFooterView extends LinearLayout {
 	public PullFooterView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		initView(context);
-		setState(STATE_READY);
 	}
-	
+
 	/**
 	 * Inits the view.
 	 *
 	 * @param context the context
 	 */
 	private void initView(Context context) {
-		footerView  = new LinearLayout(context);  
-		footerView.setOrientation(LinearLayout.HORIZONTAL);
-		footerView.setGravity(Gravity.CENTER); 
+		
+		mHeaderView = new LinearLayout(context);
+		mHeaderView.setOrientation(LinearLayout.HORIZONTAL);
 		//setBackgroundColor(Color.rgb(225, 225,225));
-		footerTextView = new TextView(context);  
-		footerTextView.setGravity(Gravity.CENTER_VERTICAL);
-		setTextColor(Color.rgb(107, 107, 107));
-		footerTextView.setTextSize(15);
-		footerTextView.setMinimumHeight(50);
-		footerView.setPadding(0, 10, 0, 10);
+		mHeaderView.setGravity(Gravity.CENTER); 
+		mHeaderView.setPadding(0, 5, 0, 5);
 		
-		mFooterProgress = new ProgressBar(context,null,android.R.attr.progressBarStyle);
-		mFooterProgress.setVisibility(View.GONE);
+		FrameLayout headImage =  new FrameLayout(context);
+		mArrowImageView = new ImageView(context);
+		mArrowImageView.setImageResource(R.drawable.pullview_down_arrow);
 		
-		LinearLayout.LayoutParams layoutParamsWW = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		layoutParamsWW.gravity = Gravity.CENTER;
-		layoutParamsWW.width = 50;
-		layoutParamsWW.height = 50;
-		layoutParamsWW.rightMargin = 10;
-		footerView.addView(mFooterProgress,layoutParamsWW);
+		//style="?android:attr/progressBarStyleSmall" default style
+		mProgress = new ProgressBar(context,null,android.R.attr.progressBarStyle);
+		mProgress.setVisibility(View.GONE);
 		
-		LinearLayout.LayoutParams layoutParamsWW1 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		footerView.addView(footerTextView,layoutParamsWW1);
+		//Arrow icon and progress
+		LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		iconLp.gravity = Gravity.CENTER;
+		iconLp.width = 50;
+		iconLp.height = 50;
+		headImage.addView(mArrowImageView,iconLp);
+		headImage.addView(mProgress,iconLp);
 		
-		LinearLayout.LayoutParams layoutParamsFW = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		addView(footerView,layoutParamsFW);
+		//Header text
+		LinearLayout headTextLayout  = new LinearLayout(context);
+		mTvTitle = new TextView(context);
+		headTextLayout.setOrientation(LinearLayout.VERTICAL);
+		headTextLayout.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);
+		headTextLayout.setPadding(12,0,0,0);
+		LinearLayout.LayoutParams textLp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		headTextLayout.addView(mTvTitle,textLp);
+		mTvTitle.setTextColor(Color.argb(255, 50, 50, 50));
+		mTvTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
 		
+		LinearLayout.LayoutParams contentLp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		contentLp.gravity = Gravity.CENTER;
+		contentLp.bottomMargin = 5;
+		contentLp.topMargin = 5;
+		
+		LinearLayout headerLayout = new LinearLayout(context);
+		headerLayout.setOrientation(LinearLayout.HORIZONTAL);
+		headerLayout.setGravity(Gravity.CENTER); 
+		
+		headerLayout.addView(headImage,contentLp);
+		headerLayout.addView(headTextLayout,contentLp);
+		
+		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		lp.gravity = Gravity.CENTER;
+		
+		mHeaderView.addView(headerLayout,lp);
+		
+		this.addView(mHeaderView,lp);
+		//Get height of this header view.
 		ViewUtil.measureView(this);
-		footerHeight = this.getMeasuredHeight();
+		mFooterViewHeight = this.getMeasuredHeight();
 	}
 
 	/**
-	 * Set state
-	 *
-	 * @param state the new state
+	 * Set arrow image visibility
+	 * @param visibility
 	 */
-	public void setState(int state) {
-		
-		if (state == STATE_READY) {
-			footerView.setVisibility(View.VISIBLE);
-			footerTextView.setVisibility(View.VISIBLE);
-			mFooterProgress.setVisibility(View.GONE);
-			footerTextView.setText("载入更多");
-		} else if (state == STATE_LOADING) {
-			footerView.setVisibility(View.VISIBLE);
-			footerTextView.setVisibility(View.VISIBLE);
-			mFooterProgress.setVisibility(View.VISIBLE);
-			footerTextView.setText("正在加载...");
-		}else if(state == STATE_NO){
-			footerView.setVisibility(View.GONE);
-			footerTextView.setVisibility(View.VISIBLE);
-			mFooterProgress.setVisibility(View.GONE);
-			footerTextView.setText("已是全部");
-		}else if(state == STATE_EMPTY){
-			footerView.setVisibility(View.GONE);
-			footerTextView.setVisibility(View.GONE);
-			mFooterProgress.setVisibility(View.GONE);
-			footerTextView.setText("没有数据");
+	public void setArrowVisibility(int visibility) {
+		mArrowImageView.setVisibility(visibility);
+	}
+	
+	/**
+	 * Set progress visibility
+	 * @param visibility
+	 */
+	public void setProgressVisibility(int visibility) {
+		mProgress.setVisibility(visibility);
+	}
+	
+	/**
+	 * Set title text visibility.
+	 * @param visibility
+	 */
+	public void setTitileVisibility(int visibility) {
+		mTvTitle.setVisibility(visibility);
+	}
+	
+	/**
+	 * Set title text
+	 * @param text
+	 */
+	public void setTitleText(CharSequence text) {
+		mTvTitle.setText(text);
+	}
+	
+	/**
+	 * Set title text
+	 * @param resId
+	 */
+	public void setTitleText(int resId) {
+		mTvTitle.setText(resId);
+	}
+	
+	
+	/**
+	 * Start animation of arrow image
+	 * @param animation
+	 */
+	public void startArrowAnimation(Animation animation) {
+		mArrowImageView.clearAnimation();
+		if(null != animation) {
+			mArrowImageView.startAnimation(animation);
 		}
 	}
 	
 	/**
-	 * Gets the visiable height.
-	 * @return the visiable height
+	 * Gets the header height.
+	 *
+	 * @return the header height
 	 */
-	public int getVisiableHeight() {
-		LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams)footerView.getLayoutParams();
-		return lp.height;
+	public int getViewHeight() {
+		return mFooterViewHeight;
 	}
-
-	/**
-	 * 隐藏footerView.
-	 */
-	public void hide() {
-		LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) footerView.getLayoutParams();
-		lp.height = 0;
-		footerView.setLayoutParams(lp);
-		footerView.setVisibility(View.GONE);
-	}
-
-	/**
-	 * 显示footerView.
-	 */
-	public void show() {
-		footerView.setVisibility(View.VISIBLE);
-		LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) footerView.getLayoutParams();
-		lp.height = LayoutParams.WRAP_CONTENT;
-		footerView.setLayoutParams(lp);
-	}
-
 	
 	/**
 	 * 
-	 * 描述：设置字体颜色
+	 * Set title text color
 	 * @param color
 	 * @throws 
 	 */
-	public void setTextColor(int color){
-		footerTextView.setTextColor(color);
+	public void setTitleTextColor(int color){
+		mTvTitle.setTextColor(color);
 	}
 	
 	/**
 	 * 
-	 * 描述：设置背景颜色
+	 * Set Background color
 	 * @param color
 	 * @throws 
 	 */
 	public void setBackgroundColor(int color){
-		footerView.setBackgroundColor(color);
+		mHeaderView.setBackgroundColor(color);
 	}
 
 	/**
 	 * 
-	 * 描述：获取Footer ProgressBar，用于设置自定义样式
+	 * Get progress
 	 * @return
 	 * @throws 
 	 */
-	public ProgressBar getFooterProgress() {
-		return mFooterProgress;
+	public ProgressBar getProgress() {
+		return mProgress;
 	}
 
 	/**
 	 * 
-	 * Set custom drawable to the footer view progress.
+	 * Set progress drawable
 	 * @return
 	 * @throws 
 	 */
-	public void setFooterProgressDrawable(Drawable indeterminateDrawable) {
-		mFooterProgress.setIndeterminateDrawable(indeterminateDrawable);
-	}
-
-	/**
-	 * 
-	 * Get the height of footer view.
-	 * @return
-	 * @throws 
-	 */
-	public int getFooterHeight() {
-		return footerHeight;
-	}
-	
-	/**
-	 * 设置高度.
-	 *
-	 * @param height 新的高度
-	 */
-	public void setVisiableHeight(int height) {
-		if (height < 0) height = 0;
-		LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) footerView.getLayoutParams();
-		lp.height = height;
-		footerView.setLayoutParams(lp);
+	public void setHeaderProgressBarDrawable(Drawable indeterminateDrawable) {
+		mProgress.setIndeterminateDrawable(indeterminateDrawable);
 	}
 }

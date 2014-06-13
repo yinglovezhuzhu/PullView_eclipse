@@ -21,17 +21,16 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.opensource.pullview.utils.DateUtil;
 import com.opensource.pullview.utils.ViewUtil;
 
 /**
@@ -41,18 +40,6 @@ import com.opensource.pullview.utils.ViewUtil;
  */
 public class PullHeaderView extends LinearLayout {
 
-	/** The rotate anim duration. */
-	private final int ROTATE_ANIM_DURATION = 180;
-	
-	/** The Constant STATE_NORMAL. */
-	public final static int STATE_NORMAL = 0;
-	
-	/** The Constant STATE_READY. */
-	public final static int STATE_READY = 1;
-	
-	/** The Constant STATE_REFRESHING. */
-	public final static int STATE_REFRESHING = 2;
-	
 	/** The header view. */
 	private LinearLayout mHeaderView;
 	
@@ -60,25 +47,13 @@ public class PullHeaderView extends LinearLayout {
 	private ImageView mArrowImageView;
 	
 	/** The header progress bar. */
-	private ProgressBar mHeaderProgress;
+	private ProgressBar mProgress;
 	
 	/** The tips textview. */
-	private TextView mTipsTextview;
+	private TextView mTvTitle;
 	
 	/** The header time view. */
-	private TextView mTimeTextView;
-	
-	/** The m state. */
-	private int mState = -1;
-
-	/** The m rotate up anim. */
-	private Animation mRotateUpAnim;
-	
-	/** The m rotate down anim. */
-	private Animation mRotateDownAnim;
-	
-	/** Last refresh time. */
-	private String mLastRefreshTime = null;
+	private TextView mTvLabel;
 	
 	/** The head content height. */
 	private int mHeaderViewHeight;
@@ -114,7 +89,7 @@ public class PullHeaderView extends LinearLayout {
 		mHeaderView = new LinearLayout(context);
 		mHeaderView.setOrientation(LinearLayout.HORIZONTAL);
 		//setBackgroundColor(Color.rgb(225, 225,225));
-		mHeaderView.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM); 
+		mHeaderView.setGravity(Gravity.CENTER); 
 		mHeaderView.setPadding(0, 5, 0, 5);
 		
 		FrameLayout headImage =  new FrameLayout(context);
@@ -122,8 +97,8 @@ public class PullHeaderView extends LinearLayout {
 		mArrowImageView.setImageResource(R.drawable.pullview_down_arrow);
 		
 		//style="?android:attr/progressBarStyleSmall" default style
-		mHeaderProgress = new ProgressBar(context,null,android.R.attr.progressBarStyle);
-		mHeaderProgress.setVisibility(View.GONE);
+		mProgress = new ProgressBar(context,null,android.R.attr.progressBarStyle);
+		mProgress.setVisibility(View.GONE);
 		
 		//Arrow icon and progress
 		LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -131,37 +106,37 @@ public class PullHeaderView extends LinearLayout {
 		iconLp.width = 50;
 		iconLp.height = 50;
 		headImage.addView(mArrowImageView,iconLp);
-		headImage.addView(mHeaderProgress,iconLp);
+		headImage.addView(mProgress,iconLp);
 		
 		//Header text
 		LinearLayout headTextLayout  = new LinearLayout(context);
-		mTipsTextview = new TextView(context);
-		mTimeTextView = new TextView(context);
+		mTvTitle = new TextView(context);
+		mTvLabel = new TextView(context);
 		headTextLayout.setOrientation(LinearLayout.VERTICAL);
-		headTextLayout.setGravity(Gravity.BOTTOM|Gravity.LEFT);
+		headTextLayout.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);
 		headTextLayout.setPadding(12,0,0,0);
-		LinearLayout.LayoutParams tipLp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		headTextLayout.addView(mTipsTextview,tipLp);
-		headTextLayout.addView(mTimeTextView,tipLp);
-		mTipsTextview.setTextColor(Color.rgb(107, 107, 107));
-		mTimeTextView.setTextColor(Color.rgb(107, 107, 107));
-		mTipsTextview.setTextSize(15);
-		mTimeTextView.setTextSize(14);
+		LinearLayout.LayoutParams textLp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		headTextLayout.addView(mTvTitle,textLp);
+		headTextLayout.addView(mTvLabel,textLp);
+		mTvTitle.setTextColor(Color.argb(255, 50, 50, 50));
+		mTvLabel.setTextColor(Color.argb(255, 255, 110, 0));
+		mTvTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+		mTvLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
 		
 		LinearLayout.LayoutParams contentLp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		contentLp.gravity = Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL;
+		contentLp.gravity = Gravity.CENTER;
 		contentLp.bottomMargin = 5;
 		contentLp.topMargin = 5;
 		
 		LinearLayout headerLayout = new LinearLayout(context);
 		headerLayout.setOrientation(LinearLayout.HORIZONTAL);
-		headerLayout.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM); 
+		headerLayout.setGravity(Gravity.CENTER); 
 		
 		headerLayout.addView(headImage,contentLp);
 		headerLayout.addView(headTextLayout,contentLp);
 		
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		lp.gravity = Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL;
+		lp.gravity = Gravity.CENTER;
 		
 		mHeaderView.addView(headerLayout,lp);
 		
@@ -169,78 +144,104 @@ public class PullHeaderView extends LinearLayout {
 		//Get height of this header view.
 		ViewUtil.measureView(this);
 		mHeaderViewHeight = this.getMeasuredHeight();
-		//Hide this header view.
-		mHeaderView.setPadding(0, -1 * mHeaderViewHeight, 0, 0);
 		
-		mRotateUpAnim = new RotateAnimation(0.0f, -180.0f,
-				Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-				0.5f);
-		mRotateUpAnim.setDuration(ROTATE_ANIM_DURATION);
-		mRotateUpAnim.setFillAfter(true);
-		mRotateDownAnim = new RotateAnimation(-180.0f, 0.0f,
-				Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-				0.5f);
-		mRotateDownAnim.setDuration(ROTATE_ANIM_DURATION);
-		mRotateDownAnim.setFillAfter(true);
-		
-		setState(STATE_NORMAL);
 	}
 
 	/**
-	 * Sets the state.
-	 *
-	 * @param state the new state
+	 * Set arrow image visibility
+	 * @param visibility
 	 */
-	public void setState(int state) {
-		if (state == mState) return ;
-		
-		if (state == STATE_REFRESHING) {	
-			mArrowImageView.clearAnimation();
-			mArrowImageView.setVisibility(View.INVISIBLE);
-			mHeaderProgress.setVisibility(View.VISIBLE);
-		} else {	
-			mArrowImageView.setVisibility(View.VISIBLE);
-			mHeaderProgress.setVisibility(View.INVISIBLE);
-		}
-		
-		switch(state){
-			case STATE_NORMAL:
-				if (mState == STATE_READY) {
-					mArrowImageView.startAnimation(mRotateDownAnim);
-				}
-				if (mState == STATE_REFRESHING) {
-					mArrowImageView.clearAnimation();
-				}
-				mTipsTextview.setText(R.string.pull_view_pull_to_refresh);
-				
-				if(mLastRefreshTime==null){
-					mLastRefreshTime = DateUtil.getSystemDate("yyyy-MM-dd HH:mm:ss");
-					mTimeTextView.setText(getResources().getText(R.string.pull_view_refresh_time) + " " + mLastRefreshTime);
-				}else{
-					mTimeTextView.setText(getResources().getText(R.string.pull_view_refresh_time) + " " + mLastRefreshTime);
-				}
-				
-				break;
-			case STATE_READY:
-				if (mState != STATE_READY) {
-					mArrowImageView.clearAnimation();
-					mArrowImageView.startAnimation(mRotateUpAnim);
-					mTipsTextview.setText(R.string.pull_view_release_to_refresh);
-					mTimeTextView.setText(getResources().getText(R.string.pull_view_refresh_time) + " " + mLastRefreshTime);
-					mLastRefreshTime = DateUtil.getSystemDate("yyyy-MM-dd HH:mm:ss");
-					
-				}
-				break;
-			case STATE_REFRESHING:
-				mTipsTextview.setText(R.string.pull_view_refreshing);
-				mTimeTextView.setText(getResources().getText(R.string.pull_view_refresh_time) + " " + mLastRefreshTime);
-				break;
-				default:
-			}
-		
-		mState = state;
+	public void setArrowVisibility(int visibility) {
+		mArrowImageView.setVisibility(visibility);
 	}
 	
+	/**
+	 * Set progress visibility
+	 * @param visibility
+	 */
+	public void setProgressVisibility(int visibility) {
+		mProgress.setVisibility(visibility);
+	}
+	
+	/**
+	 * Set title text visibility.
+	 * @param visibility
+	 */
+	public void setTitileVisibility(int visibility) {
+		mTvTitle.setVisibility(visibility);
+	}
+	
+	/**
+	 * Set title text
+	 * @param text
+	 */
+	public void setTitleText(CharSequence text) {
+		mTvTitle.setText(text);
+	}
+	
+	/**
+	 * Set titme text.
+	 * @param resid
+	 * @return
+	 */
+	public void setTitleText(int resid) {
+		mTvTitle.setText(resid);
+	}
+	
+	/**
+	 * Set label text visibility<br>
+	 * <p> {@link View#VISIBLE} default.
+	 * @param visibility
+	 */
+	public void setLabelVisibility(int visibility) {
+		mTvLabel.setVisibility(visibility);
+	}
+	
+	/**
+	 * Set label text.
+	 * @param text
+	 */
+	public void setLabelText(CharSequence text) {
+		mTvLabel.setText(text);
+	}
+	
+	/**
+	 * Set label text.
+	 * @param resid
+	 */
+	public void setLabelText(int resid) {
+		mTvLabel.setText(resid);
+	}
+	
+	/**
+	 * Start animation of arrow image
+	 * @param animation
+	 */
+	public void startArrowAnimation(Animation animation) {
+		mArrowImageView.clearAnimation();
+		if(null != animation) {
+			mArrowImageView.startAnimation(animation);
+		}
+	}
+
+	/**
+	 * set last refresh time.
+	 *
+	 * @param time the new refresh time
+	 */
+	public void setRefreshTime(String time) {
+		mTvLabel.setText(time);
+	}
+
+	/**
+	 * Gets the header height.
+	 *
+	 * @return the header height
+	 */
+	public int getViewHeight() {
+		return mHeaderViewHeight;
+	}
+
 	/**
 	 * Sets the visiable height.
 	 *
@@ -262,43 +263,23 @@ public class PullHeaderView extends LinearLayout {
 		LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams)mHeaderView.getLayoutParams();
 		return lp.height;
 	}
-
-	/**
-	 * 描述：获取HeaderView.
-	 *
-	 * @return the header view
-	 */
-	public LinearLayout getHeaderView() {
-		return mHeaderView;
-	}
-	
-	/**
-	 * set last refresh time.
-	 *
-	 * @param time the new refresh time
-	 */
-	public void setRefreshTime(String time) {
-		mTimeTextView.setText(time);
-	}
-
-	/**
-	 * Gets the header height.
-	 *
-	 * @return the header height
-	 */
-	public int getHeaderHeight() {
-		return mHeaderViewHeight;
-	}
 	
 	/**
 	 * 
-	 * Set Text Color
+	 * Set title text color
 	 * @param color
 	 * @throws 
 	 */
-	public void setTextColor(int color){
-		mTipsTextview.setTextColor(color);
-		mTimeTextView.setTextColor(color);
+	public void setTitleTextColor(int color){
+		mTvTitle.setTextColor(color);
+	}
+	
+	/**
+	 * Set label text color
+	 * @param color
+	 */
+	public void setLabelTextColor(int color) {
+		mTvLabel.setTextColor(color);
 	}
 	
 	/**
@@ -317,8 +298,8 @@ public class PullHeaderView extends LinearLayout {
 	 * @return
 	 * @throws 
 	 */
-	public ProgressBar getHeaderProgress() {
-		return mHeaderProgress;
+	public ProgressBar getProgress() {
+		return mProgress;
 	}
 
 	/**
@@ -328,6 +309,6 @@ public class PullHeaderView extends LinearLayout {
 	 * @throws 
 	 */
 	public void setHeaderProgressBarDrawable(Drawable indeterminateDrawable) {
-		mHeaderProgress.setIndeterminateDrawable(indeterminateDrawable);
+		mProgress.setIndeterminateDrawable(indeterminateDrawable);
 	}
 }

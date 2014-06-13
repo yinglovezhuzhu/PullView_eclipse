@@ -17,6 +17,8 @@
  */	
 package com.opensource.pullview.utils;
 
+import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.MeasureSpec;
@@ -29,6 +31,54 @@ import android.view.View.MeasureSpec;
 public class ViewUtil {
 	
 	private ViewUtil() {}
+	
+	/**
+	 * Change px to dip
+	 * 
+	 * @param context
+	 * @param pixs
+	 * @return
+	 */
+	public static float pxToDip(Context context, int pixs) {
+		DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		return ((float) (pixs * 160)) / dm.densityDpi;
+	}
+
+	/**
+	 * Change dip to px
+	 * 
+	 * @param context
+	 * @param dips
+	 * @return
+	 */
+	public static int dipToPx(Context context, float dips) {
+		DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		return (int) (dips * ((float) dm.densityDpi / 160));
+	}
+
+	/**
+	 * Change px to sp
+	 * 
+	 * @param context
+	 * @param pxValue
+	 * @return
+	 */
+	public static int px2sp(Context context, float pxValue) {
+		final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;
+		return (int) (pxValue / fontScale + 0.5f);
+	}
+
+	/**
+	 * Change sp to px
+	 * 
+	 * @param spValue
+	 * @param fontScale（DisplayMetrics类中属性scaledDensity）
+	 * @return
+	 */
+	public static int sp2px(Context context, float spValue) {
+		final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;
+		return (int) (spValue * fontScale + 0.5f);
+	}
 
 	/**
      * Measure a view.

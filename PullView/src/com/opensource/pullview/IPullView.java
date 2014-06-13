@@ -16,15 +16,22 @@
  * limitations under the License.
  */	
 package com.opensource.pullview;
+
 /**
- * Usage The listener to listen refresh action.<br>
+ * Usage 
  * 
  * @author yinglovezhuzhu@gmail.com
  */
-public interface OnRefreshListener {
-	/**
-	 * On refresh.
-	 */
-	public void onRefresh();
+public interface IPullView {
 	
+	public final static int RELEASE_TO_LOAD = 0x0;	//release-to-load state
+	public final static int PULL_TO_LOAD = 0x1;		//pull-to-refresh state
+	public final static int LOADING = 0x2;			//laoding state(refreshing or loading more)
+	public final static int IDEL = 0x3;				//idel state
+
+	/** The ratio of the distance of the padding and sliding distance */
+	public static final int OFFSET_RATIO = 3;
+	
+	public static final int ANIMATION_DURATION = 250;
+
 }
