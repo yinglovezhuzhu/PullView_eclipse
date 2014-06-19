@@ -65,7 +65,7 @@ public class PullScrollView extends ScrollView implements IPullView {
 	private int mHeaderViewHeight;
 
 	/** The m enable pull refresh. */
-	private boolean mEnablePullRefresh = true;
+	private boolean mEnablePullRefresh = false;
 
 	/** The m pull refreshing. */
 	private boolean mPullRefreshing = false;
