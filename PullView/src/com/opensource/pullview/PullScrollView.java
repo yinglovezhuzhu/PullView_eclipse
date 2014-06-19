@@ -110,32 +110,32 @@ public class PullScrollView extends ScrollView implements IPullView {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
-		if (mLastY == -1) {
-			mLastY = ev.getRawY();
-		}
-
-		switch (ev.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-			mLastY = ev.getRawY();
-			break;
-		case MotionEvent.ACTION_MOVE:
-			final float deltaY = ev.getRawY() - mLastY;
-			mLastY = ev.getRawY();
-			if ((mHeaderView.getVisiableHeight() > 0 || deltaY > 0)) {
-				updateHeaderHeight(deltaY / OFFSET_RATIO);
+		if(mEnablePullRefresh) {
+			if (mLastY == -1) {
+				mLastY = ev.getRawY();
 			}
-			break;
-		case MotionEvent.ACTION_UP:
-			mLastY = -1;
-			if (mEnablePullRefresh && mHeaderView.getVisiableHeight() >= mHeaderViewHeight) {
-				startRefresh();
+			
+			switch (ev.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				mLastY = ev.getRawY();
+				break;
+			case MotionEvent.ACTION_MOVE:
+				final float deltaY = ev.getRawY() - mLastY;
+				mLastY = ev.getRawY();
+				if ((mHeaderView.getVisiableHeight() > 0 || deltaY > 0)) {
+					updateHeaderView(deltaY / OFFSET_RATIO);
+				}
+				break;
+			case MotionEvent.ACTION_UP:
+				mLastY = -1;
+				updateHeaderHeight();
+				if(mHeaderView.getVisiableHeight() >= mHeaderViewHeight) {
+					startRefresh();
+				}
+				break;
+			default:
+				break;
 			}
-			if (mEnablePullRefresh) {
-				refreshHeaderHeight();
-			}
-			break;
-		default:
-			break;
 		}
 		return super.onTouchEvent(ev);
 	}
@@ -211,12 +211,12 @@ public class PullScrollView extends ScrollView implements IPullView {
 	 * Refresh complete
 	 */
 	public void refreshComplete() {
-		if (mPullRefreshing == true) {
+//		if (mPullRefreshing == true) {
 			mPullRefreshing = false;
-			refreshHeaderHeight();
+			updateHeaderHeight();
 			mLastRefreshTime = DateUtil.getSystemDate("yyyy-MM-dd HH:mm:ss");
 			mHeaderView.setLabelText(getResources().getText(R.string.pull_view_refresh_time) + " " + mLastRefreshTime);
-		}
+//		}
 	}
 	
 	/**
@@ -307,7 +307,7 @@ public class PullScrollView extends ScrollView implements IPullView {
 	/**
 	 * Refresh Header height.
 	 */
-	private void refreshHeaderHeight() {
+	private void updateHeaderHeight() {
 		int height = mHeaderView.getVisiableHeight();
 		if (height < mHeaderViewHeight || !mPullRefreshing) {
 			mScrollBack = SCROLLBACK_HEADER;
@@ -322,11 +322,11 @@ public class PullScrollView extends ScrollView implements IPullView {
 	}
 
 	/**
-	 * Update the height of header view.
+	 * Update the visiable height of header view.
 	 * 
 	 * @param delta
 	 */
-	private void updateHeaderHeight(float delta) {
+	private void updateHeaderView(float delta) {
 		int newHeight = (int) delta + mHeaderView.getVisiableHeight();
 		mHeaderView.setVisiableHeight(newHeight);
 		if (mEnablePullRefresh && !mPullRefreshing) {
