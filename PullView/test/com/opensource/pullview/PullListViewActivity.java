@@ -41,8 +41,7 @@ public class PullListViewActivity extends Activity {
 	
 	private static final String TAG = "PullListViewActivity";
 
-	private static final int MSG_REFRESH_DONE = 0x100;
-	private static final int MSG_LOAD_DONE = 0x101;
+	private static final int MSG_LOAD_DONE = 0x100;
 
 	private PullListView mListView;
 	private MainHandler mHandler = new MainHandler();
@@ -52,13 +51,9 @@ public class PullListViewActivity extends Activity {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case MSG_REFRESH_DONE:
-				if(null != mListView) {
-					mListView.refreshCompleted();
-				}
-				break;
 			case MSG_LOAD_DONE:
 				if(null != mListView) {
+					mListView.refreshCompleted();
 					mListView.loadMoreCompleted(true);
 				}
 				break;
@@ -79,6 +74,14 @@ public class PullListViewActivity extends Activity {
 		mListView.setLoadMode(PullListView.LoadMode.PULL_TO_LOAD);
 		mListView.setHeaderLabelVisibility(View.VISIBLE);
 		mListView.setLastRefreshTime(DateUtil.getYesterdayDate(getString(R.string.pull_view_date_format)));
+		mListView.onFirstLoadingData("正在加载");
+		mHandler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				mHandler.sendEmptyMessageDelayed(MSG_LOAD_DONE, 5000);
+			}
+		});
 		
 		List<String> items = new ArrayList<String>();
 		for(int i = 0; i < 30; i++) {
@@ -102,7 +105,7 @@ public class PullListViewActivity extends Activity {
 			
 			@Override
 			public void onRefresh() {
-				mHandler.sendEmptyMessageDelayed(MSG_REFRESH_DONE, 5000);
+				mHandler.sendEmptyMessageDelayed(MSG_LOAD_DONE, 5000);
 				Log.e(TAG, "Start refresh+=====================^_^");
 			}
 		});
