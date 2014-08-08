@@ -17,6 +17,7 @@
  */	
 package com.opensource.pullview;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -27,7 +28,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-
+import android.widget.Toast;
 import com.opensource.pullview.utils.DateUtil;
 
 /**
@@ -124,26 +125,26 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 		mFirstItemIndex = firstVisibleItem;
 		mLastItemIndex = firstVisibleItem + visibleItemCount;
 		mTotalItemCount = totalItemCount;
-		if(mLastItemIndex == mTotalItemCount && mState == IDEL && mLoadMode == LoadMode.AUTO_LOAD && mLoadMoreable) {
-			mFooterView.setPadding(0, 0, 0, 0);
-			mFooterView.setArrowVisibility(View.GONE);
-			mFooterView.setProgressVisibility(View.GONE);
-			mFooterView.setTitileVisibility(View.VISIBLE);
-			mFooterView.startArrowAnimation(null);
-			mFooterView.setTitleText(R.string.pull_view_load_more);
-		}
 	}
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		if(scrollState == SCROLL_STATE_IDLE && mState == IDEL && mLoadMode == LoadMode.AUTO_LOAD && mLoadMoreable && mLastItemIndex == mTotalItemCount) {
-			mState = LOADING;
-			updateFooterViewByState();
-			setSelection(mTotalItemCount);
-			loadMore();
+		if(scrollState == SCROLL_STATE_IDLE && mLastItemIndex == mTotalItemCount && mState == IDEL) {
+			if(mLoadMoreable) {
+				if(mLoadMode == LoadMode.AUTO_LOAD) {
+					mState = LOADING;
+					updateFooterViewByState();
+					setSelection(mTotalItemCount);
+					loadMore();
+				}
+			} else {
+				//TODO 不能加载更多
+				Toast.makeText(getContext(), getResources().getString(R.string.no_more_data), Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		switch (event.getAction()) {
@@ -317,7 +318,7 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 		this.mRefreshListener = listener;
 		mRefreshable = null != listener;
 	}
-	
+
 	/**
 	 * Set listener to listen load more action
 	 * @param listener
@@ -328,8 +329,75 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 	}
 	
 	/**
+	 * Show loading view on header<br>
+	 * <br><p>Use this method when no header view was added on PullListView.
+	 * @param text
+	 */
+	public void onHeadLoading(CharSequence text) {
+		mState = LOADING;
+		mHeaderView.setPadding(0, 0, 0, 0);
+		mHeaderView.setArrowVisibility(View.GONE);
+		mHeaderView.setProgressVisibility(View.VISIBLE);
+		mHeaderView.setTitileVisibility(View.VISIBLE);
+		mHeaderView.setLabelVisibility(View.GONE);
+		mHeaderView.startArrowAnimation(null);
+		mHeaderView.setTitleText(text);
+	}
+	
+	/**
+	 * Show loading view on head<br>
+	 * <br><p>Use this method when no header view was added on PullListView.
+	 * @param resId
+	 */
+	public void onHeadLoading(int resId) {
+		mState = LOADING;
+		mHeaderView.setPadding(0, 0, 0, 0);
+		mHeaderView.setArrowVisibility(View.GONE);
+		mHeaderView.setProgressVisibility(View.VISIBLE);
+		mHeaderView.setTitileVisibility(View.VISIBLE);
+		mHeaderView.setLabelVisibility(View.GONE);
+		mHeaderView.startArrowAnimation(null);
+		mHeaderView.setTitleText(resId);
+	}
+	
+	/**
+	 * Show loading view on foot<br>
+	 * <br><p>Use this method when header view was added on PullListView.
+	 * @param text
+	 */
+	public void onFootLoading(CharSequence text) {
+		mState = LOADING;
+		mFooterView.setPadding(0, 0, 0, 0);
+		mFooterView.setArrowVisibility(View.GONE);
+		mFooterView.setProgressVisibility(View.VISIBLE);
+		mFooterView.setTitileVisibility(View.VISIBLE);
+		mFooterView.startArrowAnimation(null);
+		mFooterView.setTitleText(text);
+	}
+	
+	/**
+	 * Show loading view on foot<br>
+	 * <br><p>Use this method when header view was added on PullListView.
+	 * @param resId
+	 */
+	public void onFootLoading(int resId) {
+		mState = LOADING;
+		mFooterView.setPadding(0, 0, 0, 0);
+		mFooterView.setArrowVisibility(View.GONE);
+		mFooterView.setProgressVisibility(View.VISIBLE);
+		mFooterView.setTitileVisibility(View.VISIBLE);
+		mFooterView.startArrowAnimation(null);
+		mFooterView.setTitleText(resId);
+	}
+	
+	/**
 	 * The first time to load data with no block mode, then user header view to tell the user is loading data now.
 	 * @param text the text to show.
+	 * @deprecated Use onHeadLoading() or onFootLoading instead.
+	 * @see {@link #onHeadLoading(CharSequence)}
+	 * @see {@link #onHeadLoading(int)}
+	 * @see {@link #onFootLoading(CharSequence)}
+	 * @see {@link #onFootLoading(int)}
 	 */
 	public void onFirstLoadingData(CharSequence text) {
 		mState = LOADING;
@@ -345,6 +413,11 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 	/**
 	 * The first time to load data with no block mode, then user header view to tell the user is loading data now.
 	 * @param resId the text to show.
+	 * @deprecated Use onHeadLoading() or onFootLoading instead.
+	 * @see {@link #onHeadLoading(CharSequence)}
+	 * @see {@link #onHeadLoading(int)}
+	 * @see {@link #onFootLoading(CharSequence)}
+	 * @see {@link #onFootLoading(int)}
 	 */
 	public void onFirstLoadingData(int resId) {
 		mState = LOADING;
@@ -398,22 +471,18 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 	 * Refresh data complete
 	 */
 	public void refreshCompleted() {
-		if(mState != IDEL) {
-			mState = IDEL;
-			mLastRefreshTime = DateUtil.getSystemDate(getResources().getString(R.string.pull_view_date_format));
-			updateHeaderViewByState();
-		}
+		mState = IDEL;
+		mLastRefreshTime = DateUtil.getSystemDate(getResources().getString(R.string.pull_view_date_format));
+		updateHeaderViewByState();
 	}
 	
 	/**
 	 * Load more complete
 	 */
 	public void loadMoreCompleted(boolean loadMoreable) {
-		if(mState != IDEL) {
-			mState = IDEL;
-			updateFooterViewByState();
-			this.mLoadMoreable = loadMoreable;
-		}
+		mState = IDEL;
+		updateFooterViewByState();
+		this.mLoadMoreable = loadMoreable;
 	}
 
 	/**

@@ -12,4 +12,6 @@
     
     <string name="pull_view_date_format">yyyy-MM-dd HH:mm:ss</string>
     
+    <string name="no_more_data">No more data</string>
+    
 </resources>

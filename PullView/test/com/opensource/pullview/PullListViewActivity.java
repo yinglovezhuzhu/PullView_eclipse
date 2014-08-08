@@ -45,6 +45,8 @@ public class PullListViewActivity extends Activity {
 
 	private PullListView mListView;
 	private MainHandler mHandler = new MainHandler();
+	private ArrayAdapter<String> mAdapter;
+	private List<String> mDatas = new ArrayList<String>();
 	
 	@SuppressLint("HandlerLeak")
 	private class MainHandler extends Handler {
@@ -53,8 +55,14 @@ public class PullListViewActivity extends Activity {
 			switch (msg.what) {
 			case MSG_LOAD_DONE:
 				if(null != mListView) {
+					if(null != mAdapter) {
+						for(int i = 0; i < 30; i++) {
+							mDatas.add("Item " + mDatas.size());
+						}
+						mAdapter.notifyDataSetChanged();
+					}
 					mListView.refreshCompleted();
-					mListView.loadMoreCompleted(true);
+					mListView.loadMoreCompleted(mDatas.size() < 50);
 				}
 				break;
 			default:
@@ -74,19 +82,6 @@ public class PullListViewActivity extends Activity {
 		mListView.setLoadMode(PullListView.LoadMode.PULL_TO_LOAD);
 		mListView.setHeaderLabelVisibility(View.VISIBLE);
 		mListView.setLastRefreshTime(DateUtil.getYesterdayDate(getString(R.string.pull_view_date_format)));
-		mListView.onFirstLoadingData("正在加载");
-		mHandler.post(new Runnable() {
-			
-			@Override
-			public void run() {
-				mHandler.sendEmptyMessageDelayed(MSG_LOAD_DONE, 5000);
-			}
-		});
-		
-		List<String> items = new ArrayList<String>();
-		for(int i = 0; i < 30; i++) {
-			items.add("Item " + i);
-		}
 		
 		ImageView iv = new ImageView(this);
 		iv.setImageResource(R.drawable.ic_launcher);
@@ -98,8 +93,8 @@ public class PullListViewActivity extends Activity {
 		iv3.setImageResource(R.drawable.ic_launcher);
 		mListView.addHeaderView(iv3);
 		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-		mListView.setAdapter(adapter);
+		mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mDatas);
+		mListView.setAdapter(mAdapter);
 		
 		mListView.setOnRefreshListener(new OnRefreshListener() {
 			
@@ -118,5 +113,9 @@ public class PullListViewActivity extends Activity {
 				Log.e(TAG, "Start load more+=====================^_^");
 			}
 		});
+		
+//		mListView.onFirstLoadingData("正在加载");
+		mListView.onFootLoading("正在加载");
+		mHandler.sendEmptyMessageDelayed(MSG_LOAD_DONE, 5000);
 	}
 }
