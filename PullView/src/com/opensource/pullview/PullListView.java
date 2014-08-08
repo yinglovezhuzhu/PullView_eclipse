@@ -70,6 +70,8 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 	private boolean mRefreshable = false;
 	/** Whether it can load more data. */
 	private boolean mLoadMoreable = false;
+	/** Whether show tips when there is no more data to load **/
+	private boolean mShowNoMoreDataTips = true;
 	
 	private String mLastRefreshTime = "";
 	private int mHeaderLebelVisiblity = View.VISIBLE;
@@ -139,7 +141,9 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 				}
 			} else {
 				//TODO 不能加载更多
-				Toast.makeText(getContext(), getResources().getString(R.string.no_more_data), Toast.LENGTH_SHORT).show();
+				if(mShowNoMoreDataTips) {
+					Toast.makeText(getContext(), getResources().getString(R.string.no_more_data), Toast.LENGTH_SHORT).show();
+				}
 			}
 		}
 	}
@@ -465,6 +469,15 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 			mHeaderLebelVisiblity = View.GONE;
 		}
 		mHeaderView.setLabelVisibility(mHeaderLebelVisiblity);
+	}
+	
+	/**
+	 * Set show tips when there is no more data to load<br>
+	 * Show is default.
+	 * @param isShow
+	 */
+	public void setShowNoMoreDataTips(boolean isShow) {
+		this.mShowNoMoreDataTips = true;
 	}
 	
 	/**
