@@ -505,7 +505,7 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 	 * @param isShow
 	 */
 	public void setShowNoMoreDataTips(boolean isShow) {
-		this.mShowNoMoreDataTips = true;
+		this.mShowNoMoreDataTips = isShow;
 	}
 	
 	/**
