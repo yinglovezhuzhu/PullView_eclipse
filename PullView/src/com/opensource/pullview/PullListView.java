@@ -80,6 +80,7 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 
 	private OnRefreshListener mRefreshListener;
 	private OnLoadMoreListener mLoadMoreListener;
+	private OnScrollListener mScrollListener;
 
 	/**
 	 * The mode of load more.<br>
@@ -127,6 +128,9 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 		mFirstItemIndex = firstVisibleItem;
 		mLastItemIndex = firstVisibleItem + visibleItemCount;
 		mTotalItemCount = totalItemCount;
+		if(null != mScrollListener) {
+			mScrollListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+		}
 	}
 
 	@Override
@@ -145,6 +149,9 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 					Toast.makeText(getContext(), getResources().getString(R.string.no_more_data), Toast.LENGTH_SHORT).show();
 				}
 			}
+		}
+		if(null != mScrollListener) {
+			mScrollListener.onScrollStateChanged(view, scrollState);
 		}
 	}
 
@@ -312,6 +319,27 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 	@Override
 	public void setAdapter(ListAdapter adapter) {
 		super.setAdapter(adapter);
+	}
+	
+	@Override
+	public void setOnScrollListener(OnScrollListener l) {
+		this.mScrollListener = l;
+	}
+	
+	/**
+	 * Set the background color of HeaderView
+	 * @param color
+	 */
+	public void setHeaderViewBackgroundColor(int color) {
+		mHeaderView.setBackgroundColor(color);
+	}
+	
+	/**
+	 * Set the background color of FootView
+	 * @param color
+	 */
+	public void setFootViewBackgroundColor(int color) {
+		mFooterView.setBackgroundColor(color);
 	}
 
 	/**
@@ -515,19 +543,19 @@ public class PullListView extends ListView implements IPullView, AbsListView.OnS
 		
 		mHeaderView = new PullHeaderView(context);
 		mHeaderView.setLabelVisibility(View.VISIBLE);
-		mHeaderViewHeight = mHeaderView.getViewHeight();
+		mHeaderViewHeight = mHeaderView.getViewHeight() + getDividerHeight();
 		mHeaderView.setPadding(0, -mHeaderViewHeight, 0, 0);
 		mHeaderView.invalidate();
 		addHeaderView(mHeaderView, null, false);
 
 		mFooterView = new PullFooterView(context);
-		mFooterViewHeight = mFooterView.getViewHeight();
+		mFooterViewHeight = mFooterView.getViewHeight() + getDividerHeight();
 		mFooterView.setPadding(0, 0, 0, -mFooterViewHeight);
 		mFooterView.invalidate();
 		addFooterView(mFooterView, null, false);
 		
 		mState = IDEL;
-		setOnScrollListener(this);
+		super.setOnScrollListener(this);
 		
 		mLastRefreshTime = DateUtil.getSystemDate(getResources().getString(R.string.pull_view_date_format));
 	}
